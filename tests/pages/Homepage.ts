@@ -4,11 +4,11 @@ export class Homepage {
   constructor(private page: Page) {}
 
   async launchApplication() {
-    await this.page.goto("https://www.douglas.de/de");
+    await this.page.goto("https://www.douglas.de/de", {waitUntil: 'load'});
   }
 
   async acceptCookies() {
-    await this.page.getByTestId('uc-accept-all-button').click();
+      await this.page.getByTestId('uc-accept-all-button').click();
   }
 
   async navigateToProducts() {

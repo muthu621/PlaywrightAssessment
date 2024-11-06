@@ -1,4 +1,5 @@
 import { Page, expect } from "@playwright/test";
+import { timeout } from "../../playwright.config";
 
 export class Perfumepage {
   constructor(private page: Page) {}
@@ -7,15 +8,15 @@ export class Perfumepage {
   async getFilteredProductsByBrand(expectedBrand: string) {
     const mismatchedProducts: { brand: string }[] = [];
     
-    // Locate products by flexible locator instead of XPath
-    const products = await this.page.locator('.product-card').elementHandles();
+    // Use XPath with contains to allow partial matching of brand text
+    const brandProducts = await this.page.$$(`//div[contains(text(),'${expectedBrand}')]`);
 
-    for (const product of products) {
+    // Extract details of each product and validate brand
+    for (const brandProduct of brandProducts) {
         try {
-            // Fetch the brand text from within each product element
-            const brand = await product.$eval('.brand-selector', (el) => el.textContent?.trim() ?? '');
+            const brand = await brandProduct.$eval('brand-selector', (el) => el.textContent?.trim() ?? '');
 
-            if (!brand.includes(expectedBrand)) {  // Allow partial matching
+            if (brand !== expectedBrand) {
                 mismatchedProducts.push({ brand });
             }
         } catch (error) {
@@ -23,6 +24,7 @@ export class Perfumepage {
         }
     }
 
+    // Validate that there are no mismatches
     if (mismatchedProducts.length === 0) {
         console.log(`All products match the brand filter: ${expectedBrand}`);
     } else {
@@ -31,37 +33,38 @@ export class Perfumepage {
     }
 }
 
-async getFilteredProductsByClassification(expectedClassification: string) {
-    const mismatchedProducts: { classification: string }[] = [];
+async getFilteredProductsByClassification(expectedClassification) {
+  const mismatchedProducts: { classification: string }[] = [];
 
-    // Locate products by a more flexible class-based locator
-    const products = await this.page.locator('.product-card').elementHandles();
+  // Find products with classification containing the expected text
+  const products = await this.page.locator(`//div[contains(@class, 'product-classification')]`).elementHandles();
 
-    for (const product of products) {
-        try {
-            // Get the text content of the classification within each product element
-            const classification = await product.$eval('.classification-selector', el => el.textContent?.trim() ?? '');
+  // Loop over each product and verify classification
+  for (const product of products) {
+      try {
+          // Get the text content of the classification element within each product
+          const classification = await product.evaluate(el => el.textContent?.trim() || '');
 
-            if (!classification.includes(expectedClassification)) {  // Allow partial matching
-                mismatchedProducts.push({ classification });
-            }
-        } catch (error) {
-            console.error(`Error retrieving classification for a product:`, error);
-        }
-    }
+          if (classification !== expectedClassification) {
+              mismatchedProducts.push({ classification });
+          }
+      } catch (error) {
+          console.error(`Error retrieving classification for a product:`, error);
+      }
+  }
 
-    if (mismatchedProducts.length === 0) {
-        console.log(`All products match the classification filter: ${expectedClassification}`);
-    } else {
-        console.error(`Some products do not match the classification filter: ${expectedClassification}`);
-        console.table(mismatchedProducts);
-    }
+  // Output mismatched products if any are found
+  if (mismatchedProducts.length === 0) {
+      console.log(`All products match the classification filter: ${expectedClassification}`);
+  } else {
+      console.error(`Some products do not match the classification filter: ${expectedClassification}`);
+      console.table(mismatchedProducts);
+  }
 }
 
-
   async selectCriteria(criteria: string) {
+    await this.page.waitForLoadState('load');
     await this.page.getByTestId('flags').click();
-    await this.page.waitForLoadState();
     await this.page.getByRole('checkbox', { name: `${criteria}` }).click();
   }
 
@@ -70,29 +73,26 @@ async getFilteredProductsByClassification(expectedClassification: string) {
     await this.page.getByPlaceholder('Marke suchen').click();
     await this.page.getByPlaceholder('Marke suchen').fill(brand);
     await this.page.getByRole('checkbox', { name: `${brand}` }).click();
-    await this.page.waitForLoadState('load');
   }
 
   async selectGender(gender: string) {
     await this.page.getByTestId('gender').click();
     await this.page.getByRole('checkbox', { name: `${gender}` }).click();
+    
   }
 
   async selectclassification(classification: string) {
-    await this.page.waitForLoadState('load');
     await this.page.getByTestId('classificationClassName').click();
     await this.page.getByRole('checkbox', { name: `${classification}` }).click();
   }
 
   async selectOccasion(occasion: string) {
-    await this.page.waitForLoadState('load');
     await this.page.getByTestId('Geschenk für').click();
-    await this.page.waitForLoadState('load');
+    await this.page.getByPlaceholder('Geschenk für suchen').fill(occasion);
     await this.page.getByRole('checkbox', { name: `${occasion}` }).click();
   }
   
   async verifyProductDisplay(expectedProductText: string) {
-    await this.page.waitForLoadState('load');
     const productDetail = await this.page.getByTestId('details-link');
     await expect(productDetail).toContainText(expectedProductText);
   }

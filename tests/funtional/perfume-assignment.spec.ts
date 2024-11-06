@@ -19,17 +19,13 @@ filterData.forEach((data) => {
 
     // Step 4: Apply filters based on data
     await perfumePage.selectCriteria(data.criteria);
-    await page.waitForLoadState();
     await perfumePage.selectBrand(data.marke);
-    await page.waitForLoadState();
     
     // vaidate brand details
     await perfumePage.getFilteredProductsByBrand(data.marke);
-    await page.waitForLoadState();
 
     // filter by classification
     await perfumePage.selectclassification(data.produktart);
-    await page.waitForLoadState();
 
     // vaidate classification details
     await perfumePage.getFilteredProductsByClassification(data.produktart);
