@@ -1,4 +1,4 @@
 export const filterData = [
-    { criteria: 'Sale', marke: 'cacharel', produktart: 'Eau de Parfum', geschenkFur: 'Weihnachten', furWen: 'Weiblich', product: 'CacharelYes I AmEau de Parfum' },
-    { criteria: 'Neu', marke: 'Dior', produktart: 'Eau de Toilette', geschenkFur: 'Frauen', furWen: 'Damen', product: 'CacharelYes I AmEau de Parfum' },
-  ];
+  { criteria: 'Sale', marke: 'cacharel', produktart: 'Eau de Parfum', geschenkFur: 'Weihnachten', furWen: 'Weiblich', product: 'CacharelYes I AmEau de Parfum' },
+  { criteria: 'Geschenk', marke: 'Kilian', produktart: 'Haarparfum', geschenkFur: 'weihnachten', furWen: 'Unisex',product: 'KilianThe NarcoticsGood Girl Gone Bad Hair MistHaarparfum'} 
+]; 
