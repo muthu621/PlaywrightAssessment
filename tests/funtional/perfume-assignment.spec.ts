@@ -12,7 +12,7 @@ filterData.forEach((data) => {
     await homePage.launchApplication();
 
     // Step 2: Handle the cookie consent
-    await homePage.acceptCookies();
+    //await homePage.acceptCookies();
 
     // Step 3: Click on "Parfum"
     await homePage.navigateToProducts();
